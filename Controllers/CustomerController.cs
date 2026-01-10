@@ -22,5 +22,41 @@ namespace Intuit_Entrevista.Controllers
             var customers = await _customerService.GetCustomersAsync();
             return Ok(customers);
         }
+
+        [HttpGet("id")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDTO))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(CustomerDTO))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<List<CustomerDTO>>> GetById(int id)
+        {
+            var customer = await _customerService.GetByIdAsync(id);
+            return customer != null ? Ok(customer) : NotFound();
+        }
+
+        [HttpPost()]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(int?))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<int?>> Create(CustomerCreateDTO command)
+        {
+            var result = await _customerService.Create(command);
+            return result != null && result > 0 ? CreatedAtAction(
+                nameof(GetById),
+                new { id = result },
+                result
+            ) : NotFound();
+        }
+
+        [HttpPut("id")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<int?>> Update(int id, CustomerUpdateDTO command)
+        {
+            var result = await _customerService.Update(id, command);
+            return result.Match<ActionResult>(
+                rowsAffected => NoContent(),
+                errors => BadRequest(new { errors })
+            );
+        }
     }
 }

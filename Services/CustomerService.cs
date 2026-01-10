@@ -1,7 +1,12 @@
 ﻿using AutoMapper;
+using FluentValidation.Results;
 using Intuit_Entrevista.Data.Abstractions;
+using Intuit_Entrevista.Domain;
 using Intuit_Entrevista.DTO;
 using Intuit_Entrevista.Services.Abstractions;
+using Intuit_Entrevista.Services.Validations;
+using Intuit_Entrevista.Utils;
+using OneOf;
 
 namespace Intuit_Entrevista.Services
 {
@@ -19,8 +24,46 @@ namespace Intuit_Entrevista.Services
         {
             //TODO controlar errores
             var result = await _customerRepository.GetAllAsync();
-            var customers = _mapper.Map<List<CustomerDTO>>(result);
-            return customers;
+            return _mapper.Map<List<CustomerDTO>>(result);
+        }
+
+        public async Task<CustomerDTO> GetByIdAsync(int id)
+        {
+            //TODO controlar errores
+            var result = await _customerRepository.GetByIdAsync(id);
+            return _mapper.Map<CustomerDTO>(result);
+        }
+
+        public async Task<int?> Create(CustomerCreateDTO commandDTO)
+        {
+            //TODO controlar errores
+            var command = _mapper.Map<Customer>(commandDTO);
+            var created = await _customerRepository.Create(command);
+            return created?.Id;
+        }
+
+        public async Task<OneOf<int?, IList<ValidationFailure>>> Update(int id, CustomerUpdateDTO commandDTO)
+        {
+            //TODO controlar errores
+            var customerInDb = await _customerRepository.GetByIdAsync(id);
+
+            var validator = new CustomerValidator(OperationIntent.Update, customerInDb);
+
+            var validationResult = await validator.ValidateAsync(id);
+
+            if (!validationResult.IsValid)
+                return validationResult.Errors.Select(e => new ValidationFailure(e.PropertyName, e.ErrorMessage)).ToList();
+
+            customerInDb.Nombre = commandDTO.Nombre;
+            customerInDb.Apellido = commandDTO.Apellido;
+            customerInDb.RazonSocial = commandDTO.RazonSocial;
+            customerInDb.CUIT = commandDTO.CUIT;
+            customerInDb.FechaNacimiento = commandDTO.FechaNacimiento;
+            customerInDb.TelefonoCelular = commandDTO.TelefonoCelular;
+            customerInDb.Email = commandDTO.Email;
+            customerInDb.FechaModificacion = DateTime.Now;
+
+            return await _customerRepository.Update(customerInDb);
         }
     }
 }

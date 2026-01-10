@@ -9,6 +9,9 @@ namespace Intuit_Entrevista.Mappings
         public MappingProfile()
         {
             CreateMap<Customer, CustomerDTO>().ReverseMap();
+            CreateMap<CustomerCommandDTO, Customer>();
+            CreateMap<CustomerCreateDTO, Customer>();
+            CreateMap<CustomerUpdateDTO, Customer>();
         }
     }
 }

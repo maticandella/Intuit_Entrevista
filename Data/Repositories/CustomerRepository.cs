@@ -18,5 +18,26 @@ namespace Intuit_Entrevista.Data.Repositories
         {
             return await _customers.ToListAsync();
         }
+
+        public async Task<Customer?> GetByIdAsync(int id) => await _customers.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+
+        public async Task<Customer> Create(Customer command)
+        {
+            await _customers.AddAsync(command);
+            await _context.SaveChangesAsync();
+            return command;
+        }
+
+        public async Task<int?> Update(Customer command)
+        {
+            _customers.Update(command);
+            return await _context.SaveChangesAsync();
+        }
+
+        public async Task<int?> Delete(Customer command)
+        {
+            _customers.Remove(command);
+            return await _context.SaveChangesAsync();
+        }
     }
 }
