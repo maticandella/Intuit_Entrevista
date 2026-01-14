@@ -9,5 +9,6 @@ namespace Intuit_Entrevista.Data.Abstractions
         Task<Customer> Create(Customer command);
         Task<int?> Update(Customer command);
         Task<int?> Delete(Customer command);
+        Task<IEnumerable<Customer>> SearchByNameWithSpAsync(string parameter);
     }
 }

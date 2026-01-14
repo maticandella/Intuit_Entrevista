@@ -54,6 +54,7 @@ namespace Intuit_Entrevista.Services
             if (!validationResult.IsValid)
                 return validationResult.Errors.Select(e => new ValidationFailure(e.PropertyName, e.ErrorMessage)).ToList();
 
+            //TODO esto lo puedo resolver mucho mejor con automapper
             customerInDb.Nombre = commandDTO.Nombre;
             customerInDb.Apellido = commandDTO.Apellido;
             customerInDb.RazonSocial = commandDTO.RazonSocial;
@@ -64,6 +65,26 @@ namespace Intuit_Entrevista.Services
             customerInDb.FechaModificacion = DateTime.Now;
 
             return await _customerRepository.Update(customerInDb);
+        }
+
+        public async Task<OneOf<int?, IList<ValidationFailure>>> Delete(int id)
+        {
+            var customerInDb = await _customerRepository.GetByIdAsync(id);
+
+            var validator = new CustomerValidator(OperationIntent.Delete, customerInDb);
+
+            var validationResult = await validator.ValidateAsync(id);
+
+            if (!validationResult.IsValid)
+                return validationResult.Errors.Select(e => new ValidationFailure(e.PropertyName, e.ErrorMessage)).ToList();
+
+            return await _customerRepository.Delete(customerInDb);
+        }
+
+        public async Task<List<CustomerDTO>> Search(string param)
+        {
+            var customers = await _customerRepository.SearchByNameWithSpAsync(param);
+            return _mapper.Map<List<CustomerDTO>>(customers);
         }
     }
 }

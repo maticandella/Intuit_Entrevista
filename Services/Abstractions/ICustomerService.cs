@@ -10,5 +10,7 @@ namespace Intuit_Entrevista.Services.Abstractions
         Task<CustomerDTO> GetByIdAsync(int id);
         Task<int?> Create(CustomerCreateDTO commandDTO);
         Task<OneOf<int?, IList<ValidationFailure>>> Update(int id, CustomerUpdateDTO commandDTO);
+        Task<OneOf<int?, IList<ValidationFailure>>> Delete(int id);
+        Task<List<CustomerDTO>> Search(string param);
     }
 }

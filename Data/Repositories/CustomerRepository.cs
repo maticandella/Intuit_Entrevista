@@ -39,5 +39,16 @@ namespace Intuit_Entrevista.Data.Repositories
             _customers.Remove(command);
             return await _context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<Customer>> SearchByNameWithSpAsync(string parameter)
+        {
+            // Normalizar el término de búsqueda
+            var normalizedParam = string.IsNullOrWhiteSpace(parameter) ? "" : parameter.Trim();
+
+            return await _customers
+                .FromSqlRaw("SELECT * FROM sp_search_clientes_by_name({0})", normalizedParam)
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 }

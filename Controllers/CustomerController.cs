@@ -58,5 +58,26 @@ namespace Intuit_Entrevista.Controllers
                 errors => BadRequest(new { errors })
             );
         }
+
+        [HttpDelete("id")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<int?>> Delete(int id)
+        {
+            var result = await _customerService.Delete(id);
+            return result.Match<ActionResult>(
+                rowsAffected => NoContent(),
+                errors => BadRequest(new { errors })
+            );
+        }
+
+        [HttpGet("search")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CustomerDTO>))]
+        public async Task<ActionResult<List<CustomerDTO>>> Search([FromQuery] string? param)
+        {
+            var customers = await _customerService.Search(param ?? string.Empty);
+            return Ok(customers);
+        }
     }
 }
