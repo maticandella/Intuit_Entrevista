@@ -76,6 +76,7 @@ namespace Intuit_Entrevista.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CustomerDTO>))]
         public async Task<ActionResult<List<CustomerDTO>>> Search([FromQuery] string? param)
         {
+            //Como mejora la haría paginada la busqueda, para mejorar la performance
             var customers = await _customerService.Search(param ?? string.Empty);
             return Ok(customers);
         }
